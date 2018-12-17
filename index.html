@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chat</title>
+    <style>
+        body {
+            background-color: #333;
+        }
+
+        .typing-notification {
+            color: #fff;
+            display: none;
+        }
+
+        .is-typing {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <section>
+            <input type="text" oninput="display()">
+        </section>
+        <section>
+            <span class="typing-notification">[someone] is typing...</span>
+        </section>
+    </div>
+
+    <script>
+        var timer;
+
+        function display() {
+            const t = document.querySelector(".typing-notification");
+            const ms = 950;
+
+            // reset timer if one has been initialized
+            if (timer !== undefined)
+                clearTimeout(timer);
+
+            // display notification if not visible
+            if ( !(t.classList.contains("is-typing")) )
+                t.classList.add("is-typing");
+
+            timer = setTimeout(function() {
+                // clear notification n milliseconds after last key stroke
+                t.classList.remove("is-typing");
+            }, ms);
+        }
+    </script>
+</body>
+</html>

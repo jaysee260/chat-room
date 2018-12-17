@@ -1,0 +1,12 @@
+{
+    "services": {
+        "userRegistration": {
+            "endpoint": "https://user-registration.azurewebsites.net",
+            "api": {
+                "actions": {
+                    "createUser": "/api/create-user"
+                }
+            }
+        }
+    }
+}

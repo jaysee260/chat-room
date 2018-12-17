@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sign up</title>
+    
+    <style>
+        body {
+            background-color: #333;
+            color: #fff;
+            font-size: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        input {
+            display: block;
+        }
+
+        .input-fields {
+            margin: 10px 0;
+        }
+
+        #validation-notification {
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+            background-color: palevioletred;
+            border: 1px solid red;
+            border-radius: 3px;
+            padding: 8px;
+        }
+
+        p[id$="-notification"] {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <section>
+            <form onsubmit="registerNewUser(event)">
+                <p class="input-fields">
+                    <label for="first_name">first name</label>
+                    <input type="text" id="first_name" onblur="validate(event)" required>
+                </p>
+                <p class="input-fields">
+                    <label for="last_name">last name</label>
+                    <input type="text" id="last_name" onblur="validate(event)" required>
+                </p>
+                <p class="input-fields">
+                    <label for="username">username</label>
+                    <input type="text" id="username" onblur="validate(event)" required>
+                </p>
+
+                <p class="input-fields">
+                    <label for="email">email</label>
+                    <input type="email" name="" id="email" onblur="validate(event)" required>
+                </p>
+
+                <p class="input-fields">
+                    <label for="password">password</label>
+                    <input type="password" name="" id="password" onblur="validate(event)" required>
+                </p>
+
+                <input type="submit" value="Register" id="register-btn" disabled>
+                <div id="validation-notification">
+                    <p id="first_name-notification"></p>
+                    <p id="last_name-notification"></p>
+                    <p id="email-notification"></p>
+                    <p id="username-notification"></p>
+                    <p id="password-notification"></p>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script type="text/javascript" src="./services/registrationService.js"></script>
+    <script>
+        // Global values
+        var isOkToSend = false;
+        const min = {
+            usernameLength: 3,
+            passwordLength: 4,
+            first_nameLength: 2,
+            last_nameLength: 2
+        };
+        const validation_messages = {
+            failed: {
+                email: "email already in use.",
+                username: "username already taken.",
+                password: "password does not meet requirements.",
+                first_name: `first name must be at least ${min.first_nameLength} characters.`,
+                last_name: `last name must be at least ${min.last_nameLength} characters.`
+            }
+        };
+        var passedValidation = {
+            username: false,
+            email: false,
+            password: false,
+            first_name: false,
+            last_name: false
+        }
+        // End Global values
+
+        function validate(e) {
+            if (e.target.value === "") return;
+
+            const type = e.target.id;
+            const value = e.target.value;
+
+            var results = {};
+            
+            switch (type) {
+                case "first_name":
+                case "last_name":
+                    results.type = type; // first_name OR last_name
+                    results.passed = validateFirstOrLastName(type, value);
+
+                    if (results.passed) {
+                        passedValidation[type] = true;
+                        removeValidationNotification(results.type);
+                    } else {
+                        passedValidation[type] = false;
+                        displayValidationNotifcation(results.type);
+                    }
+                    break;
+
+                case "email":
+                case "username":
+                    results.type = type; // email OR username
+                    results.isTaken = validateEmailOrPassword(type, value);
+         
+                    if ( !results.isTaken ) {
+                        passedValidation[type] = true;
+                        console.log(`${results.type} is not taken`);
+                        removeValidationNotification(results.type);
+                    } else {
+                        passedValidation[type] = false;
+                        console.log(`${results.type} is taken`);
+                        displayValidationNotifcation(results.type);
+                    }
+                    break;
+
+                case "password":
+                    results.type = type;
+                    results.passed = validatePassword(value);
+
+                    if (results.passed) {
+                        passedValidation[type] = true;
+                        removeValidationNotification(results.type);
+                        
+                    } else {
+                        passedValidation[type] = false;
+                        displayValidationNotifcation(results.type);
+                    }
+                    break;
+            }
+
+            console.log(passedValidation);
+            // Check whether to enable/disable Register button
+            const registerButton = document.getElementById("register-btn");
+            var failedTests = Object.values(passedValidation).filter(prop => prop === false);
+
+            if (failedTests.length === 0) {
+                registerButton.disabled = false
+                isOkToSend = true;
+            } else {
+                registerButton.disabled = true
+                isOkToSend = false;
+            }
+        }
+
+        function validateEmailOrPassword(type, value) {
+            if (value === "") return;
+
+            return checkIfEmailOrUsernameIsTaken(type, value);
+        }
+
+        // Decides whether to call checkIf[email|username]Taken()
+        function checkIfEmailOrUsernameIsTaken(type, value) {
+            const validTypes = ["email","username"];
+            if ( !validTypes.includes(type) )
+                return "Invalid type; must be \"email\" or \"username\"";
+
+            var isTaken;
+
+            switch (type) {
+                case "email":
+                    isTaken = checkIfEmailIsTaken(value);
+                    break;
+
+                case "username":
+                    isTaken = checkIfUsernameIsTaken(value);
+                    break;
+            }
+            
+            return isTaken;
+        }
+
+        function checkIfEmailIsTaken(email) {
+            // make api call to service
+            return false;
+        }
+
+        function checkIfUsernameIsTaken(username) {
+            // make api call to service
+            return false;
+        }
+
+        function validatePassword(value) {
+            // TODO: Perform some actual password validation
+            return checkPasswordLength(min.passwordLength, value);
+        }
+
+        function checkPasswordLength(minLength, password) {
+            return password.length >= minLength ? true : false;
+        }
+
+        // Decides whether to call check[first|last]NameLength()
+        function validateFirstOrLastName(type, value) {
+            if (value === "") return;
+
+            var passed; // boolean
+            switch (type) {
+                case "first_name":
+                    passed = checkFirstNameLength(min.first_nameLength, value);
+                    break;
+            
+                case "last_name":
+                    passed = checkLastNameLength(min.last_nameLength, value);
+                    break;
+            }
+
+            return passed;
+        }
+
+        function checkFirstNameLength(minLength, first_name) {
+            return first_name.length >= minLength ? true : false;
+        }
+
+        function checkLastNameLength(minLength, last_name) {
+            return last_name.length >= minLength ? true : false;
+        }
+
+        function displayValidationNotifcation(type) {
+            var validationNotificationContainer = document.getElementById("validation-notification");
+            var notification = document.getElementById(`${type}-notification`);
+
+            // display if empty
+            if (validationNotificationContainer.style.display === "")
+                validationNotificationContainer.style.display = "inline-block";
+            // display respective message if none is visible
+            if (notification.innerHTML === "")
+                notification.innerHTML = validation_messages.failed[type];
+        }
+
+        function removeValidationNotification(type) {
+            var validationNotificationContainer = document.getElementById("validation-notification");
+            var notification = document.getElementById(`${type}-notification`);
+            // clear notification if there is one
+            if (notification.innerHTML !== "") {
+                notification.innerHTML = "";
+            }
+
+            // check if children of notification container are empty.
+            // if so, hide the container from view.
+            var emptyChildren = 0;
+            for (var i = 0; i < validationNotificationContainer.childElementCount; i++) {
+                if (validationNotificationContainer.children[i].innerHTML !== "") {
+                    emptyChildren++;
+                }
+            }
+
+            if (emptyChildren === 0)
+                validationNotificationContainer.style.display = ""
+        }
+
+        async function registerNewUser(e) {
+            e.preventDefault();
+            
+            if (isOkToSend) {
+
+                const first_name = document.getElementById("first_name").value;
+                const last_name = document.getElementById("last_name").value;
+                const username = document.getElementById("username").value;
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+    
+
+                /* With the HTML required attributes, this validation code is likely to 
+                    never run... but you never know when some clever little fuck might
+                    just remove it in the elements inspector and attempt to send your server bad data.
+                */
+                // notify of missing field(s)
+                if (
+                    ( first_name === "" || last_name === "" || username === "" || email === "" || password === "" )
+                        ||
+                    ( first_name === "null" || last_name === "null" || username == "null" || email == "null" || password == "null" )
+                        ||
+                    ( first_name === "undefined" || last_name === "undefined" || username == "undefined" || email == "undefined" || password == "undefined" )
+
+                ) {
+                    console.warn("None of these fields can be empty, null or undefined, you shit.");
+                    console.log({ first_name, last_name, username, email, password });
+                    return;
+                };
+
+                const payload = { first_name, last_name, username, email, password };
+    
+                var response;
+                try {
+                    response = await registrationService.createUser(payload);
+                } catch (error) {
+                    console.error("API Error");
+                    console.log(error);
+                    // some sort of notification for the user would be nice here.
+                }
+    
+                console.table(response);
+                // if request succeeds clear form and redirect to login
+                // if it fails display appropriate message
+                
+            } 
+    
+        }
+    </script>
+    
+</body>
+</html>
